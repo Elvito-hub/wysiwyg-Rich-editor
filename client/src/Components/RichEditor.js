@@ -6,16 +6,19 @@ import createTextAlignmentPlugin from "@draft-js-plugins/text-alignment";
 import createImagePlugin from "@draft-js-plugins/image";
 
 import createAlignmentPlugin from "@draft-js-plugins/alignment";
-
+import createInlineToolbarPlugin from "@draft-js-plugins/inline-toolbar";
 import createFocusPlugin from "@draft-js-plugins/focus";
 
 import createResizeablePlugin from "@draft-js-plugins/resizeable";
 
 import createBlockDndPlugin from "@draft-js-plugins/drag-n-drop";
+import createHashtagPlugin from "@draft-js-plugins/hashtag";
 
 import createDragNDropUploadPlugin from "@draft-js-plugins/drag-n-drop-upload";
 import "./Styles/editorStyles.css";
 import "@draft-js-plugins/static-toolbar/lib/plugin.css";
+import buttonStyles from "./Styles/buttonStyles.css";
+import toolbarStyles from "./Styles/toolbarStyles.css";
 import mockUpload from "./mockUpload";
 
 import {
@@ -37,10 +40,15 @@ const emojiPlugin = createEmojiPlugin({
 const { EmojiSuggestions, EmojiSelect } = emojiPlugin;
 const textAlignmentPlugin = createTextAlignmentPlugin();
 const staticToolbarPlugin = createToolbarPlugin();
+const hashtagPlugin = createHashtagPlugin();
 const { Toolbar } = staticToolbarPlugin;
 const focusPlugin = createFocusPlugin();
 const resizeablePlugin = createResizeablePlugin();
 const blockDndPlugin = createBlockDndPlugin();
+const inlineToolbarPlugin = createInlineToolbarPlugin({
+  theme: { buttonStyles, toolbarStyles },
+});
+const { InlineToolbar } = inlineToolbarPlugin;
 const alignmentPlugin = createAlignmentPlugin();
 const { AlignmentTool } = alignmentPlugin;
 
@@ -61,6 +69,8 @@ const plugins = [
   resizeablePlugin,
   imagePlugin,
   emojiPlugin,
+  hashtagPlugin,
+  inlineToolbarPlugin,
 ];
 
 const RichEditor = () => {
@@ -72,58 +82,19 @@ const RichEditor = () => {
     setEditorState(editorState);
   };
   const alignmentStyles = ["left", "right", "center"];
-  //   const addImage = () => {
 
-  //     // CREATE <img /> block
-  //     const entityKey = editorState // from STATE
-  //       .getCurrentContent()
-  //       .createEntity('IMAGE', 'MUTABLE', {
-  //         src:'some_img_url',
-  //         height: '100px',
-  //         width: '100px',
-  //     }).getLastCreatedEntityKey();
-
-  //     // NEW EDITOR STATE
-  //     const newEditorState = AtomicBlockUtils.insertAtomicBlock(
-  //       editorState,
-  //       entityKey,
-  //       ' '
-  //     );
-
-  //     // SETSTATE
-  //     setEditorState(newEditorState);
-  // }
-  //   const applyAlignment = (newStyle) => {
-  //     let styleForRemove = alignmentStyles.filter((style) => style !== newStyle);
-  //     let currentContent = editorState.getCurrentContent();
-  //     let selection = editorState.getSelection();
-  //     let focusBlock = currentContent.getBlockForKey(selection.getFocusKey());
-  //     let anchorBlock = currentContent.getBlockForKey(selection.getAnchorKey());
-  //     let isBackward = selection.getIsBackward();
-
-  //     let selectionMerge = {
-  //       anchorOffset: 0,
-  //       focusOffset: focusBlock.getLength(),
-  //     };
-
-  //     if (isBackward) {
-  //       selectionMerge.anchorOffset = anchorBlock.getLength();
-  //     }
-  //     let finalSelection = selection.merge(selectionMerge);
-  //     let finalContent = styleForRemove.reduce((content, style) => Modifier.removeInlineStyle(content, finalSelection, style), currentContent);
-  //     let modifiedContent = Modifier.applyInlineStyle(finalContent, finalSelection, newStyle);
-  //     const nextEditorState = EditorState.push(editorState, modifiedContent, "change-inline-style");
-  //     setEditorState(nextEditorState);
-  //   };
   function myBlockStyleFn(contentBlock) {
     const type = contentBlock.getType();
     if (type === "blockquote") {
       return "superFancyBlockquote";
     }
   }
+  const focus = () => {
+    editor.focus();
+  };
   return (
     <div>
-      <div className="editor">
+      <div className="editor" onClick={focus}>
         <Toolbar>
           {(externalProps) => (
             <div className="icons-toolbar">
@@ -146,6 +117,7 @@ const RichEditor = () => {
           )}
         </Toolbar>
         <Editor editorState={editorState} onChange={onChange} blockStyleFn={myBlockStyleFn} plugins={plugins} ref={editor} />
+        <InlineToolbar />
         <EmojiSuggestions />
       </div>
 
